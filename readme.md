@@ -6,13 +6,16 @@ Faster Searching
 
 This flask server uses the Google Image API to search for whatever search term you put at the end of the url, and redirects directly to the first result
 
-ie if you wanted to search for 'many puppies' you would use "**http://server.address/many-puppies**" and it would resolve directly to the first image, like so 
+ie if you wanted to search for 'many puppies' you would use "**http://giveme.one/many-puppies**" and it would resolve directly to the first image, like so 
+
+
+
+| **NOTE: My server only has 100 api key uses per day! it only really exists for demo purposes until I can afford more. But feel free to try it!** |
+| :----------------------------------------------------------: |
 
 
 
 ![GiveMeOne](GiveMeOne.gif)
-
-**( This is just a demo URL, I don't have a live public version ready yet :) )**
 
 
 
