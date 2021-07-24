@@ -6,7 +6,7 @@ Faster Searching
 
 This flask server uses the Google Image API to search for whatever search term you put at the end of the url, and redirects directly to the first result
 
-ie if you wanted to search for 'many puppies' you would use "**http://giveme.one/many-puppies**" and it would resolve directly to the first image, like so 
+ie if you wanted to search for 'mgs salute' you would use "**http://giveme.one/mgs-salute**" and it would resolve directly to the first image, like so 
 
 
 
@@ -15,7 +15,7 @@ ie if you wanted to search for 'many puppies' you would use "**http://giveme.one
 
 
 
-![GiveMeOne](GiveMeOne.gif)
+![GiveMeOne](GiveMeOneDemo.gif)
 
 
 
