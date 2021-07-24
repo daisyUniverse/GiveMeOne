@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <meta content="{{ color }}" data-react-helmet="true" name="theme-color" />
+    <meta property="og:site_name" content="{{ appname }}">
+    <meta property="og:type" content="{{ player }}">
+
+
+    <meta name="twitter:card"                       content="player" />
+    <meta name="twitter:title"                      content="{{ title }}" />
+    <meta name="twitter:image"                      content="{{ url }}" />
+    <meta name="twitter:creator"                    content="@RobinUniverse_" />
+    
+    <meta property="og:url"                content="{{ url }}" />
+    <meta property="og:title"              content="{{ title }}" />
+    <meta property="og:image"              content="{{ url }}" />
+
+    <link rel="alternate" href="http://mc.hirob.in/oembed.json?term={{ term }}&title={{ title }}&url={{ url }}&context={{ context }}" type="application/json+oembed" title="{{ title }}">
+    <meta http-equiv = "refresh" content = "0; homeurl = {{ url }}" />
+{% endblock %}
+
+{% block body %}
+Redirecting you to the image in a moment. <a href="{{ url }}">Or click here.</a>
+{% endblock %}

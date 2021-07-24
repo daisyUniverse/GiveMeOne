@@ -1,0 +1,13 @@
+[Unit]
+Description=Init file for givemeone uwsgi instance
+After=network.target
+
+[Service]
+User=robin
+Group=robin
+WorkingDirectory=/home/robin/givemeone
+Environment="PATH=/home/robin/givemeone/givemeoneenv/bin"
+ExecStart=/home/robin/givemeone/givemeoneenv/bin/uwsgi --ini givemeone.ini
+
+[Install]
+WantedBy=multi-user.target
