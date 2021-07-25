@@ -13,7 +13,7 @@ telegram_user_agents = ["TelegramBot (like TwitterBot)"]
 # Read config from config.json. If it does not exist, create new.
 if not os.path.exists("config.json"):
     with open("config.json", "w") as outfile:
-        default_config = {"config":{"database":"","link_cache":"json","database":"","color":"#43B581", "appname": "GiveMeOne", "repo": "https://github.com/robinuniverse/givemeone", "url": "https://giveme.one"},"api":{"api_key":""}}
+        default_config = {"config":{"engine":"hybrid","database":"","link_cache":"json","database":"","color":"#43B581", "appname": "GiveMeOne", "repo": "https://github.com/robinuniverse/givemeone", "url": "https://giveme.one"},"api":{"api_key":""}}
         json.dump(default_config, outfile, indent=4, sort_keys=True)
 
     config = default_config
@@ -53,23 +53,48 @@ def default():
 def givemeone(term):
     return search(term)
 
+# Duck Duck Go function
+@app.route('/ddg/<term>') 
+def duckduckgo(term):
+    return search(term, engine='ddg')
+
 # Sends a simple embed with a message
 def message(text): 
     return render_template('default.html', message=text, color=config['config']['color'], appname=config['config']['appname'], repo=config['config']['repo'], url=config['config']['url'])
 
 # Attempts to return a render template from a search term by searching the link cache, or adding a new entry if one is not found
-def search(term): 
+def search(term, engine=config['config']['engine']): 
     cached_gso = get_gso_from_link_cache(term)
 
     if cached_gso == None:
-        try:
-            gso = google(term)
-            add_gso_to_link_cache(gso)
-            return redirect(gso['url'], 301)
+        if engine == 'hybrid':
+            try:
+                gso = google(term)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
 
-        except Exception as e:
-            print(e)
-            return message("Failed to scan your link!")
+            except Exception as e:
+                print(e)
+                gso = ddg(term)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
+        elif engine == 'google':
+            try:
+                gso = google(term)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message('Google API quota has been reached for the day!')
+        elif engine == 'ddg':
+            try:
+                gso = ddg(term)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message('DuckDuckGo failed to respond!')
+
     else:
             return redirect(cached_gso['url'], 301)
 
@@ -162,6 +187,56 @@ def genGSO(term, title="", context="", url=""):
     }
 
     return gso
+
+# Search DuckDuckGo for an image
+# Code adapted from https://github.com/deepanprabhu/duckduckgo-images-api/
+def ddg(term):
+    url = 'https://duckduckgo.com/'
+    params = { 'q': term }
+    print("Hitting DuckDuckGo for Token")
+    res = requests.post(url, data=params)
+    searchObj = re.search(r'vqd=([\d-]+)\&', res.text, re.M|re.I)
+
+    if not searchObj:
+        print("Token Parsing Failed !")
+        return -1
+
+    print("Obtained Token")
+    headers = {
+        'authority': 'duckduckgo.com',
+        'accept': 'application/json, text/javascript, */*; q=0.01',
+        'sec-fetch-dest': 'empty',
+        'x-requested-with': 'XMLHttpRequest',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-mode': 'cors',
+        'referer': 'https://duckduckgo.com/',
+        'accept-language': 'en-US,en;q=0.9',
+    }
+
+    params = (
+        ('l', 'us-en'),
+        ('o', 'json'),
+        ('q', term),
+        ('vqd', searchObj.group(1)),
+        ('f', ',,,'),
+        ('p', '1'),
+        ('v7exp', 'a'),
+    )
+
+    requestUrl = url + "i.js"
+    print("Hitting Url : %s", requestUrl)
+
+    try:
+        res = requests.get(requestUrl, headers=headers, params=params)
+        data = json.loads(res.text)
+    except ValueError as e:
+        print("Hitting Url Failure - Sleep and Retry: %s", requestUrl)
+
+    print("Hitting Url Success : %s", term)
+    gso = genGSO(term, data["results"][0]["title"].encode('utf-8'), data["results"][0]["url"], data["results"][0]["image"])
+    return gso
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80)
