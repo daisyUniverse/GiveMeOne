@@ -5,7 +5,7 @@ import sys
 sys.dont_write_bytecode = True
 
 from flask import Flask, render_template, redirect, request
-from engines import google, ddg, ytdl
+from engines import google, ddg, ytdl, wiki
 import configinit
 import datetime
 import textwrap
@@ -19,11 +19,17 @@ app = Flask(__name__)
 
 discord_user_agents = ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:38.0) Gecko/20100101 Firefox/38.0", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"]
 telegram_user_agents = ["TelegramBot (like TwitterBot)"]
-engines = [ "google", "ddg", "yt" ]
+engines = [ "google", "ddg", "yt", "wiki", "arch", "mc", "scp", "urban", "dict" ]
 linktypes = {
     "google" : "image",
     "ddg"    : "image",
-    "yt"     : "youtube"
+    "yt"     : "youtube",
+    "wiki"   : "wiki",
+    "arch"   : "arch",
+    "mc"     : "minecraft",
+    "scp"    : "scp",
+    "urban"  : "urban",
+    "dict"   : "dict"
 }
 
 # Load the config file
@@ -109,9 +115,60 @@ def search(term, engine=config['config']['engine'], linktype="image"):
                 return redirect(gso['url'], 301)
             except Exception as e:
                 print(e)
-                gso = ytdl.searchyoutube(term, config)
+                try:
+                    gso = ytdl.searchyoutube(term, config)
+                    add_gso_to_link_cache(gso)
+                    return redirect(gso['url'], 301)
+                except Exception as e:
+                    print(e)
+                    return message("Could not retrieve youtube link!")
+        elif engine == 'wiki':
+            try:
+                gso = wiki.searchwikipedia(term, config)
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message("Could not retrieve Wikipedia link")
+        elif engine == 'arch':
+            try:
+                gso = wiki.searcharchwiki(term, config)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message("Could not retrieve Archwiki link")
+        elif engine == 'urban':
+            try:
+                gso = wiki.searchurban(term, config)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message("Could not retrieve UrbanDictionary link")
+        elif engine == 'dict':
+            try:
+                gso = wiki.searchdict(term, config)
+                add_gso_to_link_cache(gso)
+                return message(gso['url'])
+            except Exception as e:
+                print(e)
+                return message("Could not retrieve Dictionary link")
+        elif engine == 'mc':
+            try:
+                return message("Minecraft Wiki searching not yet ready")
+                return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message("Could not retrieve Minecraft Wiki link")
+        elif engine == 'scp':
+            try:
+                gso = wiki.scpwiki(term, config)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
+            except Exception as e:
+                print(e)
+                return message("Could not retrieve SCP link")
 
     else:
             return redirect(cached_gso['url'], 301)

@@ -4,7 +4,7 @@ Faster Searching
 
 
 
-This flask server uses the Google Image API and DuckDuckGo to search for whatever search term you put at the end of the url, and redirects directly to the first result
+This flask server uses the Google Image API and DuckDuckGo to search for whatever search term you put at the end of the url, and redirects directly to the first result. it can also search for a load more stuff, see below
 
 ie if you wanted to search for 'mgs salute' you would use "**http://giveme.one/mgs-salute**" and it would resolve directly to the first image, like so 
 
@@ -22,6 +22,24 @@ ie if you wanted to search for 'mgs salute' you would use "**http://giveme.one/m
 
 
 
+## Stuff you can search for...
+
+**/wiki/** - Search Wikipedia
+
+**/arch/** - Search the ArchWiki
+
+**/urban/** - Search the UrbanDictionary
+
+**/dict/** - Search the normal dictionary
+
+**/scp/** - Link directly to SCP articles ( I will make an embed for this later )
+
+**/ddg/** - DuckDuckGo's image search
+
+**/yt/** - Youtube videos
+
+and soon many more...
+
 ## Config
 
 A **config.json** file will be generated on first use, you will need to fill this out.
@@ -29,6 +47,8 @@ A **config.json** file will be generated on first use, you will need to fill thi
 ### API
 
 **api_key**: This is where your google images API key goes
+
+**dictionary**: This is where your Merriam-Webster Dictionary API key goes
 
 ### Config
 

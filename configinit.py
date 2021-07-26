@@ -16,7 +16,8 @@ def getConfig():
                     "repo": "https://github.com/robinuniverse/givemeone", 
                     "url": "https://giveme.one"},
                     "api":{
-                        "api_key":""
+                        "api_key":"",
+                        "dictionary":""
                         }
                     }
             json.dump(default_config, outfile, indent=4, sort_keys=True)
