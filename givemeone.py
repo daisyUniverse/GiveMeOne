@@ -80,12 +80,9 @@ def search(term, engine=config['config']['engine'], linktype="image"):
     if cached_gso == None:
         if engine == 'hybrid':
             try:
-                if isOutOfApiKeys() == False:
-                    gso = google.searchimages(term, config)
-                    add_gso_to_link_cache(gso)
-                    return redirect(gso['url'], 301)
-                else:
-                    raise KeyError("Error!")
+                gso = google.searchimages(term, config)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
             except Exception as e:
                 setIsOutOfAPIKeys()
                 print(e)
@@ -94,12 +91,9 @@ def search(term, engine=config['config']['engine'], linktype="image"):
                 return redirect(gso['url'], 301)
         elif engine == 'google':
             try:
-                if isOutOfApiKeys() == False:
-                    gso = google.searchimages(term, config)
-                    add_gso_to_link_cache(gso)
-                    return redirect(gso['url'], 301)
-                else:
-                    raise KeyError("Error!")
+                gso = google.searchimages(term, config)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
             except Exception as e:
                 setIsOutOfAPIKeys()
                 print(e)
@@ -114,12 +108,9 @@ def search(term, engine=config['config']['engine'], linktype="image"):
                 return message('DuckDuckGo search failed!')
         elif engine == 'yt':
             try:
-                if isOutOfApiKeys() == False:
-                    gso = google.searchyoutube(term, config)
-                    add_gso_to_link_cache(gso)
-                    return redirect(gso['url'], 301)
-                else:
-                    raise KeyError("Error!")
+                gso = google.searchyoutube(term, config)
+                add_gso_to_link_cache(gso)
+                return redirect(gso['url'], 301)
             except Exception as e:
                 print(e)
                 gso = ytdl.searchyoutube(term, config)
