@@ -5,9 +5,10 @@ from requests import get
 options = {'format': 'bestaudio', 'noplaylist':'True'}
 
 def searchyoutube(term, config):
+    term = term.replace("-"," ")
     with YoutubeDL(options) as ydl:
         try:
-            video = ydl.extract_info(f"ytsearch:{term.replace("-"," ")}", download=False)['entries'][0]
+            video = ydl.extract_info(f"ytsearch:{term}", download=False)['entries'][0]
         except:
             return None
     
