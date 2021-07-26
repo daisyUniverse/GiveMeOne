@@ -13,7 +13,7 @@ ie if you wanted to search for 'mgs salute' you would use "**http://giveme.one/m
 | **UPDATE: I have added a hybrid fallback system, so if I run out of my limited API key uses, it will search DuckDuckGo instead** |
 | :----------------------------------------------------------: |
 
-![GiveMeOne](GiveMeOneDemo.gif)
+![GiveMeOne](GiveMeOneDemo2.gif)
 
 
 
