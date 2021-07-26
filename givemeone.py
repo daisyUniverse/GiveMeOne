@@ -84,7 +84,6 @@ def search(term, engine=config['config']['engine'], linktype="image"):
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
             except Exception as e:
-                setIsOutOfAPIKeys()
                 print(e)
                 gso = ddg.searchimages(term, config)
                 add_gso_to_link_cache(gso)
@@ -95,7 +94,6 @@ def search(term, engine=config['config']['engine'], linktype="image"):
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
             except Exception as e:
-                setIsOutOfAPIKeys()
                 print(e)
                 return message('Google API quota has been reached for the day!')
         elif engine == 'ddg':
@@ -156,21 +154,6 @@ def add_gso_to_link_cache(gso):
             json.dump(link_cache, outfile, indent=4, sort_keys=True)
             print("Link added to JSON cache")
             return None
-
-# Mark today as being out of API keys
-def setIsOutOfAPIKeys():
-    pre = lastDayOutOfApiKeys
-    lastDayOutOfApiKeys = datetime.date.today()
-    print(pre + " was the last time you were out of API keys, updating to " + lastDayOutOfApiKeys)
-    
-
-# Check if we are out of API keys for the day
-def isOutOfApiKeys():
-    if lastDayOutOfApiKeys == datetime.date.today():
-        print("You are out of API keys for today")
-        return True
-    else:
-        return False
         
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80)
