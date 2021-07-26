@@ -1,4 +1,9 @@
+import sys
+sys.dont_write_bytecode = True
+
 from flask import Flask, render_template, redirect, request
+from engines import google, ddg
+import configinit
 import textwrap
 import requests
 import pymongo
@@ -6,22 +11,13 @@ import json
 import re
 import os
 
+
 app = Flask(__name__)
 discord_user_agents = ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:38.0) Gecko/20100101 Firefox/38.0", "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"]
 telegram_user_agents = ["TelegramBot (like TwitterBot)"]
+engines = [ "google", "ddg", "yt" ]
 
-# Read config from config.json. If it does not exist, create new.
-if not os.path.exists("config.json"):
-    with open("config.json", "w") as outfile:
-        default_config = {"config":{"engine":"hybrid","database":"","link_cache":"json","database":"","color":"#43B581", "appname": "GiveMeOne", "repo": "https://github.com/robinuniverse/givemeone", "url": "https://giveme.one"},"api":{"api_key":""}}
-        json.dump(default_config, outfile, indent=4, sort_keys=True)
-
-    config = default_config
-    print("You are currently using default configs, you will need to close and app an API key to the config file")
-else:
-    f = open("config.json")
-    config = json.load(f)
-    f.close()
+config = configinit.getConfig()
 
 # Check to see what link caching system the user wants, and do the setup appropriate for that
 link_cache_system = config['config']['link_cache']
@@ -53,10 +49,13 @@ def default():
 def givemeone(term):
     return search(term)
 
-# Duck Duck Go function
-@app.route('/ddg/<term>') 
-def duckduckgo(term):
-    return search(term, engine='ddg')
+# Specify Engine
+@app.route('/<engine>/<term>') 
+def engine(term, engine):
+    if engine in engines:
+        return search(term, engine=engine)
+    else:
+        return message(engine + " is not a valid search engine... yet!")
 
 # Sends a simple embed with a message
 def message(text): 
@@ -69,18 +68,18 @@ def search(term, engine=config['config']['engine']):
     if cached_gso == None:
         if engine == 'hybrid':
             try:
-                gso = google(term)
+                gso = google.searchimages(term, config)
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
 
             except Exception as e:
                 print(e)
-                gso = ddg(term)
+                gso = ddg.searchimages(term, config)
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
         elif engine == 'google':
             try:
-                gso = google(term)
+                gso = google.searchimages(term, config)
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
             except Exception as e:
@@ -88,7 +87,7 @@ def search(term, engine=config['config']['engine']):
                 return message('Google API quota has been reached for the day!')
         elif engine == 'ddg':
             try:
-                gso = ddg(term)
+                gso = ddg.searchimages(term, config)
                 add_gso_to_link_cache(gso)
                 return redirect(gso['url'], 301)
             except Exception as e:
@@ -97,47 +96,6 @@ def search(term, engine=config['config']['engine']):
 
     else:
             return redirect(cached_gso['url'], 301)
-
-# Asks the Google API for an image, returns a GSO if found (None if not)
-def google(term): 
-    if config['api']['api_key'] == "":
-        print("The Google API key is not set.")
-        return message("The Google API key is not set.")
-
-    try:
-        search_url = "https://www.googleapis.com/customsearch/v1?key={}&cx=016079215605992494498:z4taegakbcc&searchType=image&q={}".format(config['api']['api_key'],term.replace('-','+'))
-        search_data = requests.get(search_url).json()
-        if 'error' in search_data:
-            raise KeyError("error!")
-    except KeyError:
-        print("Your API key has reached it's quota")
-        return None
-    
-    search_error = 0
-    while True:
-        if search_error == 3:
-            break
-
-        try:
-            search_result = search_data['items'][0 + int(search_error)]
-        except KeyError:
-            print("No image found!")
-            return None
-
-        try:
-            search_url = search_result['link']
-            break
-        except:
-            search_error += 1
-            continue
-
-    if search_error == 3:
-        print("Search failed")
-        return None
-    else:
-        gso = genGSO(term, search_result['title'], search_result['image']['contextLink'], search_url)
-        print('Google image result for ' + gso['term'].replace('-',' ') + ' found!')
-        return gso
 
 # Try to get a GSO from the link cache
 def get_gso_from_link_cache(term):
@@ -175,68 +133,6 @@ def add_gso_to_link_cache(gso):
             json.dump(link_cache, outfile, indent=4, sort_keys=True)
             print("Link added to JSON cache")
             return None
-
-# Generate a Google Search Object
-def genGSO(term, title="", context="", url=""):
-    
-    gso = {
-        "term": term,
-        "title": title,
-        "context": context,
-        "url": url
-    }
-
-    return gso
-
-# Search DuckDuckGo for an image
-# Code adapted from https://github.com/deepanprabhu/duckduckgo-images-api/
-def ddg(term):
-    url = 'https://duckduckgo.com/'
-    params = { 'q': term }
-    print("Hitting DuckDuckGo for Token")
-    res = requests.post(url, data=params)
-    searchObj = re.search(r'vqd=([\d-]+)\&', res.text, re.M|re.I)
-
-    if not searchObj:
-        print("Token Parsing Failed !")
-        return -1
-
-    print("Obtained Token")
-    headers = {
-        'authority': 'duckduckgo.com',
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-        'sec-fetch-dest': 'empty',
-        'x-requested-with': 'XMLHttpRequest',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-mode': 'cors',
-        'referer': 'https://duckduckgo.com/',
-        'accept-language': 'en-US,en;q=0.9',
-    }
-
-    params = (
-        ('l', 'us-en'),
-        ('o', 'json'),
-        ('q', term),
-        ('vqd', searchObj.group(1)),
-        ('f', ',,,'),
-        ('p', '1'),
-        ('v7exp', 'a'),
-    )
-
-    requestUrl = url + "i.js"
-    print("Hitting Url : %s", requestUrl)
-
-    try:
-        res = requests.get(requestUrl, headers=headers, params=params)
-        data = json.loads(res.text)
-    except ValueError as e:
-        print("Hitting Url Failure - Sleep and Retry: %s", requestUrl)
-
-    print("Hitting Url Success : %s", term)
-    gso = genGSO(term, data["results"][0]["title"].encode('utf-8'), data["results"][0]["url"], data["results"][0]["image"])
-    return gso
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80)
