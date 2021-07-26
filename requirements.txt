@@ -2,3 +2,4 @@ Flask
 dnspython
 pymongo
 requests
+youtube_dl

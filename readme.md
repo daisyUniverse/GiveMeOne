@@ -17,7 +17,7 @@ ie if you wanted to search for 'mgs salute' you would use "**http://giveme.one/m
 
 
 
-| **You can also use "http://giveme.one/ddg/search-terms-here" to search DuckDuckGo images only** |
+| **You can also use "http://giveme.one/ddg/search-terms-here" to search DuckDuckGo images only**. You can also use /yt/ to search YouTube. |
 | :----------------------------------------------------------: |
 
 
@@ -36,7 +36,7 @@ A **config.json** file will be generated on first use, you will need to fill thi
 
 **database**: Link to your mongoDB link cache database if you use this method for link caching
 
-**link_cache**: (db, json) This determines if you would like to use a local json file for the link cache, or use a mongoDB database
+**link_cache**: (db, json) This determines if you would like to use a local json file for the link cache, or use a mongoDB database. (json is in a WIP state.)
 
 
 

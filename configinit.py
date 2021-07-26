@@ -5,7 +5,20 @@ import json
 def getConfig():
     if not os.path.exists("config.json"):
         with open("config.json", "w") as outfile:
-            default_config = {"config":{"engine":"hybrid","database":"","link_cache":"json","database":"","color":"#43B581", "appname": "GiveMeOne", "repo": "https://github.com/robinuniverse/givemeone", "url": "https://giveme.one"},"api":{"api_key":""}}
+            default_config = {
+                "config":{
+                    "engine":"hybrid",
+                    "database":"",
+                    "link_cache":"json",
+                    "database":"",
+                    "color":"#43B581", 
+                    "appname": "GiveMeOne", 
+                    "repo": "https://github.com/robinuniverse/givemeone", 
+                    "url": "https://giveme.one"},
+                    "api":{
+                        "api_key":""
+                        }
+                    }
             json.dump(default_config, outfile, indent=4, sort_keys=True)
 
         config = default_config

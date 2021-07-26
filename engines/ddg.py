@@ -49,5 +49,5 @@ def searchimages(term, config):
         print("Hitting Url Failure - Sleep and Retry: %s", requestUrl)
 
     print("Hitting Url Success : %s", term)
-    gso = searchobject.genGSO(term, data["results"][0]["title"].encode('utf-8'), data["results"][0]["url"], data["results"][0]["image"])
+    gso = searchobject.genGSO(term, data["results"][0]["title"].encode('utf-8'), data["results"][0]["url"], data["results"][0]["image"], "image")
     return gso
