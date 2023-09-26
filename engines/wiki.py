@@ -27,7 +27,7 @@ def searcharchwiki(term, config):
 
 # This bit of code is cursed till I can figure out how to interpret it
 def searchmcwiki(term, config):
-    search_url = "https://minecraft.fandom.com/wiki/api.php?action=opensearch&export&search={}&limit=1".format(term.replace("-","_"))
+    search_url = "https://minecraft.wiki/w/api.php?action=opensearch&export&search={}&limit=1".format(term.replace("-","_"))
     search_data = requests.get(search_url).text
     
     print(search_data)
